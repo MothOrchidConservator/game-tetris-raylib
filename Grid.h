@@ -13,7 +13,6 @@ public:
 	int grid[20][10];
 
 private:
-	vector<Color> GetCelsColor();
 	int numRows;
 	int numCols;
 	int cellSize;

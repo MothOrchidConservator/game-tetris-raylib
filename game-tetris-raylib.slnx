@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="game-tetris-raylib.vcxproj" />
+  <Project Path="game-tetris-raylib.vcxproj" Id="d591210a-b443-4523-9a86-497345ae1202" />
 </Solution>
