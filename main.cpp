@@ -1,6 +1,5 @@
 #include <raylib.h>
-#include "Grid.h"
-#include "Blocks.cpp"
+#include "Game.h"
 
 int main() {
 
@@ -8,17 +7,14 @@ int main() {
 	InitWindow(300, 600, "Raylib Tetris");
 	SetTargetFPS(60);
 	
-	Grid grid = Grid();
-	grid.Print();
+	Game game = Game();
 
-	TBlock block = TBlock();
-	
 	while (WindowShouldClose() == false)
 	{
+		game.HandleInput();
 		BeginDrawing();
 		ClearBackground(darkBlue);
-		grid.Draw();
-		block.Draw();
+		game.Draw();
 		EndDrawing();
 	}
 
