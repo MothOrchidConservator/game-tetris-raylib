@@ -6,6 +6,8 @@ Game::Game() {
 	blocks = GetAllBlocks();
 	currentBlock = GetRandomBlock();
 	nextBlock = GetRandomBlock();
+	gameOver = false;
+	score = 0;
 }
 
 Block Game::GetRandomBlock() {
@@ -30,6 +32,10 @@ void Game::Draw() {
 
 void Game::HandleInput(){
 	int keyPressed = GetKeyPressed();
+	if (gameOver && keyPressed != 0) {
+		gameOver = false;
+		Reset();
+	}
 	switch (keyPressed)
 	{
 	case KEY_LEFT:
@@ -40,6 +46,7 @@ void Game::HandleInput(){
 		break;
 	case KEY_DOWN:
 		moveBlockDown();
+		UpdateScore(0, 1);
 		break;
 	case KEY_UP:
 		RotateBlock();
@@ -50,24 +57,34 @@ void Game::HandleInput(){
 }
 
 void Game::moveBlockLeft() {
-	currentBlock.Move(0, -1);
-	if (IsBlockOutside()) {
-		currentBlock.Move(0, 1);
+	if (!gameOver) {
+		currentBlock.Move(0, -1);
+		if (IsBlockOutside()) {
+			currentBlock.Move(0, 1);
+		}
 	}
+
 }
 
 void Game::moveBlockRight() {
-	currentBlock.Move(0, 1);
-	if (IsBlockOutside()) {
-		currentBlock.Move(0, -1);
+	if (!gameOver) {
+		currentBlock.Move(0, 1);
+		if (IsBlockOutside()) {
+			currentBlock.Move(0, -1);
+		}
 	}
+
 }
 
 void Game::moveBlockDown() {
-	currentBlock.Move(1, 0);
-	if (IsBlockOutside()) {
-		currentBlock.Move(-1, 0);
+	if (!gameOver) {
+		currentBlock.Move(1, 0);
+		if (IsBlockOutside() || BlockFits() == false) {
+			currentBlock.Move(-1, 0);
+			LockBlock();
+		}
 	}
+
 }
 
 bool Game::IsBlockOutside()
@@ -82,8 +99,60 @@ bool Game::IsBlockOutside()
 }
 
 void Game::RotateBlock() {
-	currentBlock.Rotate();
-	if (IsBlockOutside()) {
-		currentBlock.UndoRotation();
+	if (!gameOver) {
+		currentBlock.Rotate();
+		if (IsBlockOutside()) {
+			currentBlock.UndoRotation();
+		}
 	}
+}
+
+void Game::LockBlock() {
+	std::vector<Position> tiles = currentBlock.GetCellPosition();
+	for (Position item : tiles) {
+		grid.grid[item.row][item.column] = currentBlock.id;
+	}
+	currentBlock = nextBlock;
+	if (BlockFits() == false) {
+		gameOver = true;
+	}
+	nextBlock = GetRandomBlock();
+	int rowsCleared = grid.ClearFullRows();
+	UpdateScore(rowsCleared, 0);
+}
+
+bool Game::BlockFits()
+{
+	std::vector<Position> tiles = currentBlock.GetCellPosition();
+	for (Position item : tiles) {
+		if (grid.IsCellEmpty(item.row, item.column) == false) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void Game::Reset()
+{
+	grid.Initialize();
+	blocks = GetAllBlocks();
+	currentBlock = GetRandomBlock();
+	nextBlock = GetRandomBlock();
+	score = 0;
+}
+
+void Game::UpdateScore(int lineCleared, int moveDownPoints) {
+	switch (lineCleared)
+	{
+	case 1:
+		score += 100;
+	case 2:
+		score += 300;
+	case 3:
+		score += 500;
+	default:
+		break;
+	}
+
+	score += moveDownPoints;
 }
